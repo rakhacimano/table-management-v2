@@ -2,12 +2,15 @@
 import { ref, computed } from 'vue'
 import { useMainStore } from '@/stores/mainStore'
 import BaseModal from '@/components/ui/BaseModal.vue'
+import FloorPlan from './FloorPlan.vue'
 import { toast } from 'vue-sonner'
+import { RiAddLine, RiPencilLine, RiDeleteBinLine } from 'vue-remix-icons'
 
 const store = useMainStore()
 const tables = computed(() => store.tables)
 const rooms = computed(() => store.rooms)
 
+const viewMode = ref('list') // 'list' or 'floor'
 const filterRoom = ref('')
 const filterStatus = ref('')
 
@@ -21,6 +24,16 @@ const filteredTables = computed(() => {
 function roomName(id) {
   const r = rooms.value.find(r => r.id === id)
   return r ? r.name : 'Unknown'
+}
+
+function roomCount(id) {
+  if (!id) return tables.value.length
+  return tables.value.filter(t => t.room_id === id).length
+}
+
+function statusCount(status) {
+  if (!status) return tables.value.length
+  return tables.value.filter(t => t.status === status).length
 }
 
 const showModal = ref(false)
@@ -85,6 +98,8 @@ async function deleteTable(id) {
   }
 }
 
+const isAdmin = computed(() => ['owner', 'admin', 'manager'].includes(store.currentPersonaId))
+
 async function quickStatusChange(id, newStatus) {
   await store.updateTable(id, { status: newStatus })
   toast.success('Status meja diperbarui')
@@ -93,34 +108,42 @@ async function quickStatusChange(id, newStatus) {
 
 <template>
   <div>
-    <div class="page-header">
-      <div><div class="page-title">Meja</div><div class="page-subtitle">Kelola semua meja makan</div></div>
+    <div class="page-header" style="margin-bottom: 12px;">
+      <div><div class="page-title">Manajemen Meja</div><div class="page-subtitle">Kelola layout dan daftar meja makan</div></div>
       <div style="display:flex;gap:8px">
-        <select class="form-select" v-model="filterRoom" style="width:160px;padding:6px 10px;font-size:12px">
-          <option value="">Semua Ruangan</option>
-          <option v-for="r in rooms" :key="r.id" :value="r.id">{{ r.name }}</option>
-        </select>
-        <select class="form-select" v-model="filterStatus" style="width:140px;padding:6px 10px;font-size:12px">
-          <option value="">Semua Status</option>
-          <option value="available">Tersedia</option>
-          <option value="occupied">Terisi</option>
-          <option value="reserved">Dipesan</option>
-          <option value="cleaning">Dibersihkan</option>
-          <option value="blocked">Diblokir</option>
-          <option value="out_of_service">Rusak</option>
-        </select>
-        <button class="btn btn-primary" @click="openModal(null)">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Tambah Meja
+        <div class="segmented-control">
+          <div class="seg-item" :class="{ active: viewMode === 'list' }" @click="viewMode = 'list'">Daftar</div>
+          <div class="seg-item" :class="{ active: viewMode === 'floor' }" @click="viewMode = 'floor'">Denah</div>
+        </div>
+        <button class="btn btn-primary" @click="openModal(null)" v-if="isAdmin">
+          <RiAddLine size="16" style="margin-right: 4px;" /> Tambah Meja
         </button>
       </div>
     </div>
-    
-    <div class="card">
+
+    <div v-if="viewMode === 'list'">
+      <div class="filter-bar" style="margin-bottom: 16px; background: var(--bg-secondary); padding: 12px; border-radius: var(--radius-lg); border: 1px solid var(--border-default);">
+        <select class="form-select" v-model="filterRoom" style="width:180px; font-size:12px">
+          <option value="">Semua Ruangan ({{ roomCount('') }})</option>
+          <option v-for="r in rooms" :key="r.id" :value="r.id">{{ r.name }} ({{ roomCount(r.id) }})</option>
+        </select>
+        <select class="form-select" v-model="filterStatus" style="width:160px; font-size:12px">
+          <option value="">Semua Status ({{ statusCount('') }})</option>
+          <option value="available">Tersedia ({{ statusCount('available') }})</option>
+          <option value="occupied">Terisi ({{ statusCount('occupied') }})</option>
+          <option value="reserved">Dipesan ({{ statusCount('reserved') }})</option>
+          <option value="cleaning">Dibersihkan ({{ statusCount('cleaning') }})</option>
+          <option value="blocked">Diblokir ({{ statusCount('blocked') }})</option>
+          <option value="out_of_service">Rusak ({{ statusCount('out_of_service') }})</option>
+        </select>
+      </div>
+      
+      <div class="card">
       <div class="data-table-wrap">
         <table class="data-table">
           <thead>
             <tr>
-              <th>Kode</th><th>Ruangan</th><th>Bentuk</th><th>Kursi</th><th>Kapasitas</th><th>Status</th><th>Catatan</th><th style="width:120px">Aksi</th>
+              <th>Kode</th><th>Ruangan</th><th>Bentuk</th><th>Kursi</th><th>Kapasitas</th><th>Status</th><th>Catatan</th><th style="width:120px" v-if="isAdmin">Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -133,26 +156,32 @@ async function quickStatusChange(id, newStatus) {
               <td style="text-transform:capitalize">{{ t.shape }}</td>
               <td>{{ t.chair_count }}</td>
               <td>{{ t.capacity_min }}-{{ t.capacity_max }}</td>
-              <td><span class="badge" :class="'badge-' + t.status">{{ t.status }}</span></td>
-              <td style="font-size:12px;color:var(--text-muted);max-width:120px;overflow:hidden;text-overflow:ellipsis">{{ t.notes || '-' }}</td>
               <td>
+                <select class="form-select" :value="t.status" @change="e => quickStatusChange(t.id, e.target.value)" style="padding:4px 6px;font-size:11px;width:110px">
+                  <option value="available">Tersedia</option>
+                  <option value="occupied">Terisi</option>
+                  <option value="reserved">Dipesan</option>
+                  <option value="cleaning">Dibersihkan</option>
+                  <option value="blocked">Diblokir</option>
+                  <option value="out_of_service">Rusak</option>
+                </select>
+              </td>
+              <td style="font-size:12px;color:var(--text-muted);max-width:120px;overflow:hidden;text-overflow:ellipsis">{{ t.notes || '-' }}</td>
+              <td v-if="isAdmin">
                 <div style="display:flex;gap:4px">
-                  <select class="form-select" :value="t.status" @change="e => quickStatusChange(t.id, e.target.value)" style="padding:4px 6px;font-size:11px;width:90px">
-                    <option value="available">Tersedia</option>
-                    <option value="occupied">Terisi</option>
-                    <option value="reserved">Dipesan</option>
-                    <option value="cleaning">Dibersihkan</option>
-                    <option value="blocked">Diblokir</option>
-                    <option value="out_of_service">Rusak</option>
-                  </select>
-                  <button class="btn btn-ghost btn-sm btn-icon" @click="openModal(t)" title="Edit"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-                  <button class="btn btn-ghost btn-sm btn-icon" @click="deleteTable(t.id)" title="Hapus"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+                  <button class="btn btn-ghost btn-sm btn-icon" @click="openModal(t)" title="Edit"><RiPencilLine size="14" /></button>
+                  <button class="btn btn-ghost btn-sm btn-icon" @click="deleteTable(t.id)" title="Hapus"><RiDeleteBinLine size="14" /></button>
                 </div>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
+      </div>
+    </div>
+
+    <div v-else-if="viewMode === 'floor'">
+      <FloorPlan :is-embed="true" />
     </div>
 
     <!-- Modal Form Meja -->

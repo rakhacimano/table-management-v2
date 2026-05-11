@@ -1,8 +1,13 @@
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useMainStore } from '@/stores/mainStore'
 import { toast } from 'vue-sonner'
+import { RiCloseLine } from 'vue-remix-icons'
 import BaseModal from '@/components/ui/BaseModal.vue'
+
+const props = defineProps({
+  isEmbed: { type: Boolean, default: false }
+})
 
 const store = useMainStore()
 const isCustomer = computed(() => store.currentPersona.id === 'customer')
@@ -74,12 +79,8 @@ const dragState = ref({
 })
 
 function onMouseDown(e, t) {
-  if (isCustomer.value) {
-    if (t.status === 'available') {
-      openBookingModal(t)
-    } else {
-      toast.error('Meja ini tidak tersedia untuk dipesan.')
-    }
+  if (!isAdmin.value) {
+    selectedDetailTable.value = t
     return
   }
   
@@ -158,7 +159,7 @@ async function submitBooking() {
 
 <template>
   <div @click="showPersonaDropdown = false">
-    <div class="page-header">
+    <div class="page-header" v-if="!isEmbed">
       <div>
         <div class="page-title">Denah Lantai</div>
         <div class="page-subtitle">
@@ -188,38 +189,54 @@ async function submitBooking() {
     
     <div class="floor-plan-container" style="overflow: hidden;">
       <div class="floor-plan-toolbar">
-        <span style="font-size:12px;font-weight:600">Legend:</span>
-        <div class="status-legend" style="border-top:none;padding:0;background:transparent">
+        <select class="form-select" v-model="selectedRoomId" style="width:200px;font-size:12px">
+          <option v-for="r in rooms" :key="r.id" :value="r.id">{{ r.name }}</option>
+        </select>
+      </div>
+      
+      <div class="floor-plan-canvas">
+        <!-- Floating Legend -->
+        <div class="floating-legend">
           <div class="legend-item"><div class="legend-dot" style="background:var(--status-available)"></div>Tersedia</div>
           <div class="legend-item"><div class="legend-dot" style="background:var(--status-occupied)"></div>Terisi</div>
           <div class="legend-item"><div class="legend-dot" style="background:var(--status-reserved)"></div>Dipesan</div>
           <div class="legend-item"><div class="legend-dot" style="background:var(--status-cleaning)"></div>Dibersihkan</div>
         </div>
-      </div>
-      
-      <div class="floor-plan-canvas">
+
         <div v-if="currentRoomTables.length === 0" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--text-muted);">
           Tidak ada meja di ruangan ini.
         </div>
         <div v-for="t in currentRoomTables" :key="t.id" class="floor-table"
-             :class="{ 'selected': selectedDetailTable?.id === t.id, 'draggable': !isCustomer, 'clickable': isCustomer && t.status === 'available' }"
+             :class="{ 
+               'selected': selectedDetailTable?.id === t.id, 
+               'draggable': isAdmin, 
+               'clickable': !isAdmin && (isCustomer ? t.status === 'available' : true) 
+             }"
              :data-shape="t.shape" :data-status="t.status"
-             :style="{ left: t.x_position + 'px', top: t.y_position + 'px', width: t.width + 'px', height: t.height + 'px', cursor: isCustomer ? (t.status === 'available' ? 'pointer' : 'not-allowed') : (dragState.isDragging && dragState.tableId === t.id ? 'grabbing' : 'grab') }"
+             :style="{ 
+               left: t.x_position + 'px', 
+               top: t.y_position + 'px', 
+               width: t.width + 'px', 
+               height: t.height + 'px', 
+               cursor: isAdmin ? (dragState.isDragging && dragState.tableId === t.id ? 'grabbing' : 'grab') : (isCustomer ? (t.status === 'available' ? 'pointer' : 'not-allowed') : 'pointer') 
+             }"
              @mousedown.prevent="onMouseDown($event, t)"
              @click="onClickTable(t)">
           <span class="table-code">{{ t.code }}</span>
           <span class="table-chairs">{{ t.chair_count }} kursi</span>
         </div>
+      </div>
 
-        <!-- Detail Panel Overlay -->
-        <div class="table-detail-panel" :class="{ open: !!selectedDetailTable }">
-          <div class="detail-header" v-if="selectedDetailTable">
+      <!-- Detail Panel Overlay - Moved outside scrollable canvas -->
+      <Transition name="panel">
+        <div class="table-detail-panel" v-if="selectedDetailTable">
+          <div class="detail-header">
             <strong style="font-size:15px">{{ selectedDetailTable.code }}</strong>
             <button class="modal-close" @click="selectedDetailTable = null">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              <RiCloseLine size="16" />
             </button>
           </div>
-          <div class="detail-body" v-if="selectedDetailTable">
+          <div class="detail-body">
             <div class="detail-row"><span class="detail-label">Ruangan</span><span class="detail-value">{{ roomName(selectedDetailTable.room_id) }}</span></div>
             <div class="detail-row"><span class="detail-label">Bentuk</span><span class="detail-value" style="text-transform:capitalize">{{ selectedDetailTable.shape }}</span></div>
             <div class="detail-row"><span class="detail-label">Kursi</span><span class="detail-value">{{ selectedDetailTable.chair_count }}</span></div>
@@ -234,7 +251,7 @@ async function submitBooking() {
             
             <div v-if="selectedDetailTable.notes" style="margin-top:8px;font-size:12px;color:var(--text-muted)">Catatan: {{ selectedDetailTable.notes }}</div>
           </div>
-          <div class="detail-actions" v-if="selectedDetailTable">
+          <div class="detail-actions">
             <label class="form-label" style="margin-bottom:4px">Ubah Status</label>
             <select class="form-select" :value="selectedDetailTable.status" @change="e => quickChangeStatus(e.target.value)" style="font-size:12px" :disabled="isCleaner && selectedDetailTable.status !== 'cleaning'">
               <option value="available" :disabled="isCleaner">Tersedia</option>
@@ -246,7 +263,7 @@ async function submitBooking() {
             </select>
           </div>
         </div>
-      </div>
+      </Transition>
     </div>
 
     <!-- Booking Modal for Customer -->

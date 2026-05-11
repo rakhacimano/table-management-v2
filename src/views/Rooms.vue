@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { useMainStore } from '@/stores/mainStore'
 import BaseModal from '@/components/ui/BaseModal.vue'
 import { toast } from 'vue-sonner'
+import { RiAddLine, RiPencilLine, RiDeleteBinLine } from 'vue-remix-icons'
 
 const store = useMainStore()
 const rooms = computed(() => store.rooms)
@@ -68,7 +69,7 @@ async function deleteRoom(id) {
     <div class="page-header">
       <div><div class="page-title">Ruangan & Lantai</div><div class="page-subtitle">Kelola area restoran Anda</div></div>
       <button class="btn btn-primary" @click="openModal(null)">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Tambah Ruangan
+        <RiAddLine size="16" style="margin-right: 4px;" /> Tambah Ruangan
       </button>
     </div>
     
@@ -92,8 +93,8 @@ async function deleteRoom(id) {
               <td><span class="badge" :class="'badge-' + r.status">{{ r.status }}</span></td>
               <td>
                 <div style="display:flex;gap:4px">
-                  <button class="btn btn-ghost btn-sm btn-icon" @click="openModal(r)" title="Edit"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-                  <button class="btn btn-ghost btn-sm btn-icon" @click="deleteRoom(r.id)" title="Hapus"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+                  <button class="btn btn-ghost btn-sm btn-icon" @click="openModal(r)" title="Edit"><RiPencilLine size="14" /></button>
+                  <button class="btn btn-ghost btn-sm btn-icon" @click="deleteRoom(r.id)" title="Hapus"><RiDeleteBinLine size="14" /></button>
                 </div>
               </td>
             </tr>

@@ -1,6 +1,12 @@
 <script setup>
 import { useMainStore } from '@/stores/mainStore'
 import { computed } from 'vue'
+import {
+  RiCheckboxCircleLine,
+  RiErrorWarningLine,
+  RiAlertLine,
+  RiPulseLine
+} from 'vue-remix-icons'
 
 const store = useMainStore()
 
@@ -135,7 +141,7 @@ const alerts = computed(() => {
     <div style="margin-bottom: 24px; display: flex; flex-direction: column; gap: 10px;">
       <div v-if="alerts.length === 0" class="ops-banner success">
         <div class="banner-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <RiCheckboxCircleLine size="20" />
         </div>
         <div class="banner-content">
           <strong>Sistem Normal</strong>
@@ -145,8 +151,8 @@ const alerts = computed(() => {
       
       <div v-for="alert in alerts" :key="alert.id" class="ops-banner" :class="alert.type">
         <div class="banner-icon">
-          <svg v-if="alert.type === 'warning'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <RiErrorWarningLine v-if="alert.type === 'warning'" size="20" />
+          <RiAlertLine v-else size="20" />
         </div>
         <div class="banner-content">
           <strong>{{ alert.title }}</strong>
@@ -218,7 +224,7 @@ const alerts = computed(() => {
           <div class="activity-feed" v-else>
             <div class="activity-item" v-for="log in activityLogs" :key="log.id">
               <div class="activity-icon" style="background:var(--bg-tertiary)">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                <RiPulseLine size="14" />
               </div>
               <div>
                 <div class="activity-text"><strong>{{ log.actor_name }}</strong>: <span v-html="log.displayText"></span></div>
