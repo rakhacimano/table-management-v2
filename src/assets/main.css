@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* ============================================================
    Mejaaa — Custom Styles (Supabase-inspired, Light Mode)
    ============================================================ */
@@ -252,3 +256,11 @@ body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--bg-prima
   .page-content { padding: 16px; }
   .form-row { grid-template-columns: 1fr; }
 }
+
+/* ---- Tooltips ---- */
+.tooltip-icon { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 50%; background: var(--bg-tertiary); color: var(--text-muted); font-size: 10px; font-weight: 700; margin-left: 6px; cursor: help; position: relative; border: 1px solid var(--border-default); transition: all 150ms; }
+.tooltip-icon:hover { background: var(--border-default); color: var(--text-primary); }
+.tooltip-icon::after { content: attr(data-tooltip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(0); background: #18181B; color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 500; white-space: normal; width: max-content; max-width: 220px; text-align: center; pointer-events: none; opacity: 0; transition: all 200ms ease; z-index: 100; box-shadow: var(--shadow-md); line-height: 1.4; }
+.tooltip-icon::before { content: ''; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(8px); border-width: 4px; border-style: solid; border-color: #18181B transparent transparent transparent; pointer-events: none; opacity: 0; transition: all 200ms ease; z-index: 100; }
+.tooltip-icon:hover::after { opacity: 1; transform: translateX(-50%) translateY(-6px); }
+.tooltip-icon:hover::before { opacity: 1; transform: translateX(-50%) translateY(2px); }

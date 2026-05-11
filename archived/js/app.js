@@ -25,7 +25,7 @@ const App = {
       el.classList.toggle('active', p === this.currentPage);
     });
 
-    const titles = { dashboard:'Dashboard', rooms:'Rooms', tables:'Tables', floorplan:'Floor Plan', bookings:'Bookings', audit:'Audit Trail', settings:'Settings', customer_booking:'Book a Table' };
+    const titles = { dashboard:'Dasbor', rooms:'Ruangan', tables:'Meja', floorplan:'Denah Lantai', bookings:'Reservasi', audit:'Log Aktivitas', settings:'Pengaturan', customer_booking:'Pesan Meja' };
     document.getElementById('topbar-title').textContent = titles[this.currentPage] || this.currentPage;
     const btn = document.getElementById('topbar-action');
     btn.style.display = 'none';
@@ -42,7 +42,7 @@ const App = {
     const c = document.getElementById('page-content');
     const pages = { dashboard: Pages.dashboard, rooms: Pages.rooms, tables: Pages.tables, floorplan: Pages.floorplan, bookings: Pages.bookings, audit: Pages.audit, settings: Pages.settings, customer_booking: Pages.customer_booking };
     if (pages[this.currentPage]) pages[this.currentPage](c);
-    else c.innerHTML = '<div class="empty-state"><h3>Page not found</h3></div>';
+    else c.innerHTML = '<div class="empty-state"><h3>Halaman tidak ditemukan</h3></div>';
     this.updateBadges();
   },
   updateBadges() {
@@ -74,15 +74,18 @@ const App = {
   confirm(msg, onYes) {
     const d = document.createElement('div');
     d.className = 'confirm-overlay';
-    d.innerHTML = `<div class="confirm-box"><div class="confirm-title">Confirm Action</div><div class="confirm-msg">${msg}</div><div class="confirm-actions"><button class="btn btn-secondary" onclick="this.closest('.confirm-overlay').remove()">Cancel</button><button class="btn btn-danger" id="confirm-yes">Delete</button></div></div>`;
+    d.innerHTML = `<div class="confirm-box"><div class="confirm-title">Konfirmasi Aksi</div><div class="confirm-msg">${msg}</div><div class="confirm-actions"><button class="btn btn-secondary" onclick="this.closest('.confirm-overlay').remove()">Batal</button><button class="btn btn-danger" id="confirm-yes">Hapus</button></div></div>`;
     document.body.appendChild(d);
     d.querySelector('#confirm-yes').onclick = () => { d.remove(); onYes(); };
   },
   // Helpers
-  badge(status) { return `<span class="badge badge-${status}">${status.replace(/_/g, ' ')}</span>`; },
-  fmtDate(iso) { if (!iso) return '-'; try { return new Date(iso).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }); } catch { return iso; } },
-  fmtTime(iso) { if (!iso) return '-'; try { return new Date(iso).toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' }); } catch { return iso; } },
-  fmtDateTime(iso) { if (!iso) return '-'; try { const d = new Date(iso); return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'}) + ' ' + d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); } catch { return iso; } },
+  badge(status) { 
+    const map = {available:'Tersedia',occupied:'Terisi',reserved:'Dipesan',cleaning:'Dibersihkan',blocked:'Diblokir',out_of_service:'Rusak',pending:'Menunggu',confirmed:'Dikonfirmasi',checked_in:'Hadir',seated:'Duduk',completed:'Selesai',cancelled:'Dibatalkan',no_show:'Tidak Hadir'};
+    return `<span class="badge badge-${status}">${map[status] || status.replace(/_/g, ' ')}</span>`; 
+  },
+  fmtDate(iso) { if (!iso) return '-'; try { return new Date(iso).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' }); } catch { return iso; } },
+  fmtTime(iso) { if (!iso) return '-'; try { return new Date(iso).toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' }); } catch { return iso; } },
+  fmtDateTime(iso) { if (!iso) return '-'; try { const d = new Date(iso); return d.toLocaleDateString('id-ID',{day:'2-digit',month:'short'}) + ' ' + d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}); } catch { return iso; } },
   roomName(id) { const r = Store.getRoom(id); return r ? r.name : '-'; },
   roomOpts(selected) { return Store.getRooms().map(r => `<option value="${r.id}" ${r.id===selected?'selected':''}>${r.name}</option>`).join(''); },
   
@@ -123,7 +126,7 @@ const App = {
     Store.setPersona(id);
     this.renderPersona();
     document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
-    this.toast(`Switched to ${Store.getCurrentPersona().role}`);
+    this.toast(`Beralih ke peran ${Store.getCurrentPersona().role}`);
     this.navigate(this.currentPage); // Re-evaluate permissions and render
   },
 
@@ -150,23 +153,23 @@ Pages.dashboard = function(c) {
   const logs = Store.getAuditLogs().slice(0, 8);
   const bookings = Store.getBookings().filter(b => b.booking_date === new Date().toISOString().split('T')[0]);
   c.innerHTML = `
-    <div class="page-header"><div><div class="page-title">Dashboard</div><div class="page-subtitle">Real-time overview of your restaurant</div></div></div>
+    <div class="page-header"><div><div class="page-title">Dasbor</div><div class="page-subtitle">Ringkasan real-time restoran Anda</div></div></div>
     <div class="stat-grid">
-      ${statCard('green','Total Tables',s.totalTables,gridIcon)}
-      ${statCard('green','Available',s.available,checkIcon)}
-      ${statCard('red','Occupied',s.occupied,usersIcon)}
-      ${statCard('blue','Reserved',s.reserved,clockIcon)}
-      ${statCard('yellow','Cleaning',s.cleaning,sparkleIcon)}
-      ${statCard('gray','Blocked',s.blocked,lockIcon)}
-      ${statCard('purple','Today Bookings',s.todayBookings,calIcon)}
-      ${statCard('blue','Upcoming',s.upcomingBookings,arrowIcon)}
+      ${statCard('green','Total Meja',s.totalTables,gridIcon)}
+      ${statCard('green','Tersedia',s.available,checkIcon)}
+      ${statCard('red','Terisi',s.occupied,usersIcon)}
+      ${statCard('blue','Dipesan',s.reserved,clockIcon)}
+      ${statCard('yellow','Dibersihkan',s.cleaning,sparkleIcon)}
+      ${statCard('gray','Diblokir',s.blocked,lockIcon)}
+      ${statCard('purple','Reservasi Hari Ini',s.todayBookings,calIcon)}
+      ${statCard('blue','Mendatang',s.upcomingBookings,arrowIcon)}
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-      <div class="card"><div class="card-header"><span class="card-title">Today's Bookings</span></div><div class="card-body" style="padding:0">
-        ${bookings.length ? `<table class="data-table"><thead><tr><th>Code</th><th>Customer</th><th>Party</th><th>Time</th><th>Status</th></tr></thead><tbody>${bookings.map(b=>`<tr><td style="font-weight:600;font-size:12px">${b.booking_code}</td><td>${b.customer_name}</td><td>${b.party_size}</td><td>${b.start_time||'-'}</td><td>${App.badge(b.status)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty-state"><p>No bookings today</p></div>'}
+      <div class="card"><div class="card-header"><span class="card-title">Reservasi Hari Ini</span></div><div class="card-body" style="padding:0">
+        ${bookings.length ? `<table class="data-table"><thead><tr><th>Kode</th><th>Pelanggan</th><th>Jumlah</th><th>Waktu</th><th>Status</th></tr></thead><tbody>${bookings.map(b=>`<tr><td style="font-weight:600;font-size:12px">${b.booking_code}</td><td>${b.customer_name}</td><td>${b.party_size}</td><td>${b.start_time||'-'}</td><td>${App.badge(b.status)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty-state"><p>Tidak ada reservasi hari ini</p></div>'}
       </div></div>
-      <div class="card"><div class="card-header"><span class="card-title">Recent Activity</span></div><div class="card-body">
-        ${logs.length ? `<div class="activity-feed">${logs.map(l=>`<div class="activity-item"><div class="activity-icon" style="background:#F4F4F5"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="activity-text"><strong>${l.actor_name}</strong> ${l.action.replace(/_/g,' ').toLowerCase()} <strong>${l.entity_type}</strong></div><div class="activity-time">${App.fmtDateTime(l.created_at)}</div></div></div>`).join('')}</div>` : '<div class="empty-state"><p>No activity yet</p></div>'}
+      <div class="card"><div class="card-header"><span class="card-title">Aktivitas Terbaru</span></div><div class="card-body">
+        ${logs.length ? `<div class="activity-feed">${logs.map(l=>`<div class="activity-item"><div class="activity-icon" style="background:#F4F4F5"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="activity-text"><strong>${l.actor_name}</strong> ${l.action.replace(/_/g,' ').toLowerCase()} <strong>${l.entity_type}</strong></div><div class="activity-time">${App.fmtDateTime(l.created_at)}</div></div></div>`).join('')}</div>` : '<div class="empty-state"><p>Belum ada aktivitas</p></div>'}
       </div></div>
     </div>`;
 };

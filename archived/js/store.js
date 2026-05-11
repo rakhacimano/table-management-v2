@@ -19,13 +19,13 @@ const Store = {
 
   // ---- PERSONAS ----
   PERSONAS: [
-    { id: 'owner', name: 'Restaurant Owner', role: 'Owner', initials: 'RO' },
-    { id: 'admin', name: 'System Admin', role: 'Admin', initials: 'SA' },
-    { id: 'manager', name: 'Floor Manager', role: 'Manager', initials: 'FM' },
-    { id: 'host', name: 'Front Desk Host', role: 'Host', initials: 'FH' },
-    { id: 'waiter', name: 'Service Staff', role: 'Waiter', initials: 'SS' },
-    { id: 'cleaner', name: 'Cleaning Staff', role: 'Cleaner', initials: 'CS' },
-    { id: 'customer', name: 'Guest', role: 'Customer', initials: 'GU' }
+    { id: 'owner', name: 'Pemilik Restoran', role: 'Pemilik', initials: 'PR' },
+    { id: 'admin', name: 'Admin Sistem', role: 'Admin', initials: 'AS' },
+    { id: 'manager', name: 'Manajer Lantai', role: 'Manajer', initials: 'ML' },
+    { id: 'host', name: 'Resepsionis', role: 'Resepsionis', initials: 'RS' },
+    { id: 'waiter', name: 'Staf Pelayanan', role: 'Pelayan', initials: 'SP' },
+    { id: 'cleaner', name: 'Staf Kebersihan', role: 'Pembersih', initials: 'SK' },
+    { id: 'customer', name: 'Tamu', role: 'Pelanggan', initials: 'TM' }
   ],
   getCurrentPersona() {
     const id = localStorage.getItem('mejaaa_persona') || 'admin';

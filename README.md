@@ -1,118 +1,92 @@
-# Mejaaa — Restaurant Table Management System
+<div align="center">
+  
+  # 🍽️ Mejaaa
+  **Sistem Manajemen Restoran & Reservasi Modern**
+  
+  [![Vue 3](https://img.shields.io/badge/Vue.js-3.0-4FC08D?style=for-the-badge&logo=vue.js)](https://vuejs.org/)
+  [![Vite](https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E)](https://vitejs.dev/)
+  [![Pinia](https://img.shields.io/badge/Pinia-F6D365?style=for-the-badge&logo=vue.js&logoColor=black)](https://pinia.vuejs.org/)
+  [![Dexie.js](https://img.shields.io/badge/Dexie.js-Offline_First-0080FF?style=for-the-badge)](https://dexie.org/)
 
-![Mejaaa Preview](https://via.placeholder.com/1200x600/18181B/3ECF8E?text=Mejaaa+Restaurant+Management)
-
-**Mejaaa** is a modern, lightweight, and responsive restaurant table management system. Built with an elegant Supabase-inspired aesthetic, it allows restaurant staff to track table statuses, manage bookings, edit floor plans via an interactive drag-and-drop canvas, and simulate different user roles without needing a backend server. 
-
-Data is securely and persistently stored in your browser's `localStorage`.
-
----
-
-## 🚀 Features
-
-### 🏢 Comprehensive Restaurant Management
-- **Dashboard Overview**: Real-time analytics on table availability, occupancy, daily bookings, and an activity feed.
-- **Rooms & Floors**: Manage different dining areas (e.g., Main Hall, VIP, Patio).
-- **Table CRUD**: Configure tables by shape, size, capacity, and seat count.
-
-### 🗺️ Interactive Floor Plan
-- **Drag-and-Drop Layout**: Admins can visually design the restaurant layout with an interactive 10px snap-to-grid canvas.
-- **Real-Time Status**: Tables are color-coded based on their status (Available, Occupied, Reserved, Cleaning, etc.).
-- **Quick Actions**: Staff can update table statuses in 2 clicks right from the layout view.
-
-### 📅 Booking Lifecycle Management
-- Track reservations from creation to completion.
-- Statuses include: `Pending`, `Confirmed`, `Checked In`, `Seated`, `Completed`, `Cancelled`, and `No Show`.
-- Integrated Kiosk/Customer Booking flow.
-
-### 🔐 Role-Based Access Control (RBAC)
-Mejaaa includes a built-in Persona Switcher to test the UI across different staff permissions:
-- **Owner / Admin / Manager**: Full access to all settings, logs, table CRUD, and layout editing.
-- **Host**: Can view the dashboard, floor plan, and manage bookings.
-- **Waiter**: Read-only dashboard, floor plan visibility, and table status updates.
-- **Cleaner**: Highly restricted view; can only update tables from `Cleaning` to `Available`.
-- **Customer / Guest**: Hides the admin sidebar completely and allows self-service booking directly via the floor plan.
-
-### 🕵️ Audit Trail & Data Export
-- **Automated Activity Logging**: Tracks who did what, and when.
-- **Data Portability**: Instantly export your entire restaurant database (Rooms, Tables, Bookings, Logs) to a JSON file.
+  <p align="center">
+    Platform manajemen operasional restoran lengkap dengan <strong>Command Center</strong> cerdas, <strong>Interactive Floor Plan</strong>, dan integrasi reservasi multi-channel (WhatsApp & Kiosk). Dirancang untuk mempercepat alur kerja Host, Pelayan, dan Manajemen.
+  </p>
+</div>
 
 ---
+
+## ✨ Fitur Utama
+
+- 📊 **Command Center Dashboard**  
+  Pantau *Key Performance Indicators* (KPI) operasional secara *real-time*. Dilengkapi dengan *Ops Banner* cerdas untuk mengingatkan durasi *cleaning* meja dan status *waiting list*.
+- 🗺️ **Interactive Floor Plan**  
+  Visualisasi denah restoran secara interaktif. Mendukung fitur *drag-and-drop* untuk mengatur tata letak meja (VIP, Main Dining, Outdoor) dengan kemudahan satu klik untuk mengubah status operasional.
+- 📅 **Manajemen Reservasi & Waiting List**  
+  Lacak reservasi dari berbagai sumber (*Walk-in*, Kiosk Mandiri, atau *WhatsApp Bot*) secara terpusat. Dilengkapi fitur *assignment* meja yang otomatis menghindari konflik jadwal.
+- 👥 **Sistem Peran (Role-Based Access)**  
+  Tampilan UI yang otomatis menyesuaikan konteks peran (*Owner*, *Admin*, *Waiter*, *Cleaner*, hingga *Guest/Customer View*).
+- ⚡ **Offline-First (Dexie.js)**  
+  Menggunakan `IndexedDB` (melalui Dexie.js) memastikan aplikasi tetap sangat cepat dan data tersimpan aman secara lokal di sisi klien, siap digunakan tanpa hambatan latensi.
 
 ## 🛠️ Tech Stack
 
-This project is built purely with standard web technologies, making it incredibly easy to deploy, host, and modify.
+- **Frontend Framework:** Vue 3 (Composition API) + Vite
+- **State Management:** Pinia
+- **Routing:** Vue Router
+- **Database (Local):** Dexie.js (IndexedDB wrapper)
+- **Styling:** Vanilla CSS (Modern CSS Variables & Grid/Flexbox) + Animasi Transisi
+- **Toast Notifications:** Vue Sonner
 
-- **Structure**: Semantic HTML5
-- **Styling**: Vanilla CSS3 + **Tailwind CSS** (via CDN) + Google Fonts (DM Sans)
-- **Logic**: Vanilla JavaScript (ES6)
-- **Database**: Browser `localStorage` (via custom `Store` singleton)
-- **Icons**: Inline SVGs (Lucide-inspired)
+## 🚀 Memulai Proyek (Getting Started)
 
----
+Ikuti langkah-langkah di bawah ini untuk menjalankan aplikasi Mejaaa di lingkungan lokal Anda.
 
-## 📂 Project Structure
+### 1. Prasyarat
+Pastikan Anda telah menginstal **Node.js** (versi 18+) di komputer Anda.
+
+### 2. Instalasi
+
+Clone repositori dan instal semua dependensi:
+
+```bash
+# Instal dependensi
+npm install
+```
+
+### 3. Menjalankan Server Pengembangan
+
+```bash
+# Jalankan server lokal dengan Vite
+npm run dev
+```
+Aplikasi akan dapat diakses secara *default* melalui `http://localhost:5173`.
+
+### 4. Build untuk Produksi
+
+```bash
+# Build aplikasi untuk tahap deployment
+npm run build
+```
+
+## 📂 Struktur Direktori Utama
 
 ```text
-table-management/
-├── index.html            # Main application shell and layout
-├── css/
-│   └── app.css           # Custom theme variables, layouts, and overrides
-├── js/
-│   ├── app.js            # Core router, UI framework (modals, toasts), and RBAC
-│   ├── store.js          # LocalStorage persistence, data models, and audit logging
-│   ├── pages-rooms.js    # Logic for Rooms & Tables data tables
-│   ├── pages-floor.js    # Interactive drag-and-drop floor plan canvas
-│   └── pages-more.js     # Bookings, Audit Trail, Settings, and Customer modals
-└── PRD.md                # Original Product Requirements Document
+src/
+├── assets/         # Aset statis dan konfigurasi CSS Global (CSS Variables)
+├── components/     # Komponen Vue yang dapat digunakan ulang
+├── router/         # Konfigurasi Vue Router (Routing halaman)
+├── stores/         # Konfigurasi Pinia dan integrasi skema database Dexie.js
+├── views/          # Halaman utama aplikasi (Dashboard, FloorPlan, Bookings, dll)
+├── App.vue         # Root layout aplikasi
+└── main.js         # Entry point (Inisialisasi Vue, Pinia, dan Router)
 ```
+
+## 🤝 Kontribusi
+
+Sistem ini didesain sedemikian rupa untuk dapat beradaptasi dengan alur kerja operasional *Food & Beverage* (F&B) modern. Jika Anda ingin menambahkan integrasi baru (seperti *Payment Gateway* atau notifikasi Telegram), silakan eksplorasi lapisan `store` dan ekstensi API.
 
 ---
 
-## 🏃 Getting Started
-
-Because Mejaaa is a client-side application with no build steps or backend dependencies, you can run it instantly.
-
-### 1. Clone the repository
-```bash
-git clone https://github.com/rakha-maxxi/table-management-v2.git
-cd table-management-v2
-```
-
-### 2. Serve the application
-You need a local web server to prevent browser CORS issues with ES modules (if applicable in the future) or just for standard testing.
-
-Using `npx`:
-```bash
-npx http-server . -p 8080
-```
-*Or using Python:*
-```bash
-python3 -m http.server 8080
-```
-
-### 3. Open your browser
-Navigate to `http://localhost:8080`. 
-
-> **Note:** On first load, Mejaaa will automatically seed your browser's `localStorage` with demo data (rooms, tables, bookings) so you can start testing immediately.
-
----
-
-## 🎭 How to test User Roles
-
-1. Look at the bottom-left corner of the sidebar.
-2. Click on your profile card (default is usually **System Admin**).
-3. Select a different role (e.g., **Cleaning Staff** or **Guest**).
-4. Watch the UI automatically restructure itself, locking out unauthorized pages and hiding admin-specific actions.
-
----
-
-## 🎨 Design Philosophy
-
-The UI is heavily inspired by modern developer tools (specifically Supabase), prioritizing clean typography, subtle borders, high-contrast actions, and a beautiful green primary accent color (`#3ECF8E`).
-
----
-
-## 📝 License
-
-This project is open-sourced under the [MIT License](LICENSE). Feel free to use, modify, and distribute it as you see fit.
+<div align="center">
+  Dibuat dengan ❤️ untuk merevolusi manajemen operasional restoran.
+</div>
