@@ -16,7 +16,8 @@ export const useMainStore = defineStore('mainStore', {
       { id: 'cleaner', name: 'Staf Kebersihan', role: 'Pembersih', initials: 'SK' },
       { id: 'customer', name: 'Tamu', role: 'Pelanggan', initials: 'TM' }
     ],
-    currentPersonaId: localStorage.getItem('mejaaa_persona') || 'admin'
+    currentPersonaId: localStorage.getItem('mejaaa_persona') || 'admin',
+    isLoading: false
   }),
 
   getters: {
@@ -48,15 +49,23 @@ export const useMainStore = defineStore('mainStore', {
     },
     
     async loadAllData() {
-      this.rooms = await db.table('rooms').toArray();
-      this.tables = await db.table('tables').toArray();
-      this.bookings = await db.table('bookings').toArray();
-      
-      const logs = await db.table('auditLogs').orderBy('created_at').reverse().limit(500).toArray();
-      this.auditLogs = logs;
-      
-      if (this.rooms.length === 0) {
-        await this.seedDemoData();
+      this.isLoading = true;
+      try {
+        // Add a artificial delay for demo purpose if needed, or just let it be fast
+        // await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        this.rooms = await db.table('rooms').toArray();
+        this.tables = await db.table('tables').toArray();
+        this.bookings = await db.table('bookings').toArray();
+        
+        const logs = await db.table('auditLogs').orderBy('created_at').reverse().limit(500).toArray();
+        this.auditLogs = logs;
+        
+        if (this.rooms.length === 0) {
+          await this.seedDemoData();
+        }
+      } finally {
+        this.isLoading = false;
       }
     },
 

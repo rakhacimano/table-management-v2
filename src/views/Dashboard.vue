@@ -1,14 +1,16 @@
-<script setup>
 import { useMainStore } from '@/stores/mainStore'
 import { computed } from 'vue'
 import {
   RiCheckboxCircleLine,
   RiErrorWarningLine,
   RiAlertLine,
-  RiPulseLine
+  RiPulseLine,
+  RiDashboardLine
 } from 'vue-remix-icons'
+import BaseSkeleton from '@/components/ui/BaseSkeleton.vue'
 
 const store = useMainStore()
+const isLoading = computed(() => store.isLoading)
 
 // KPI Calculations
 const totalTables = computed(() => store.tables.length)
@@ -99,9 +101,21 @@ const alerts = computed(() => {
   <div style="padding-bottom: 40px;">
     <!-- HEADER -->
     <div class="page-header" style="margin-bottom: 24px; border-bottom: 1px solid var(--border-default); padding-bottom: 16px;">
-      <div>
-        <div class="page-title">Command Center</div>
-        <div class="page-subtitle">Hari ini: 10:00 - 22:00 &nbsp;•&nbsp; Status: <span style="color:var(--brand-600);font-weight:600">Buka</span></div>
+      <div class="page-header-left">
+        <div class="page-header-icon">
+          <RiDashboardLine />
+        </div>
+        <div v-if="isLoading">
+          <BaseSkeleton width="180px" height="24px" style="margin-bottom:8px" />
+          <BaseSkeleton width="220px" height="16px" />
+        </div>
+        <div v-else>
+          <div class="page-title-wrap">
+            <span class="page-title">Command Center</span>
+            <span class="page-count-badge">{{ totalTables }}</span>
+          </div>
+          <div class="page-subtitle">Hari ini: 10:00 - 22:00 &nbsp;•&nbsp; Status: <span style="color:var(--brand-600);font-weight:600">Buka</span></div>
+        </div>
       </div>
       <div style="display:flex;gap:8px;">
         <router-link to="/floor-plan" class="btn btn-secondary">Buka Denah</router-link>
@@ -111,30 +125,36 @@ const alerts = computed(() => {
     
     <!-- TOP KPI CARDS -->
     <div class="stat-grid" style="grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 24px;">
-      <div class="stat-card" style="padding: 16px;">
-        <div class="stat-label" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Tersedia</div>
-        <div class="stat-value" style="color:var(--status-available)">{{ availableCount }}<span style="font-size:14px;color:var(--text-muted)">/{{ totalTables }}</span></div>
+      <div v-for="i in 6" :key="i" class="stat-card" style="padding: 16px;" v-if="isLoading">
+        <BaseSkeleton width="60px" height="12px" style="margin-bottom:12px" />
+        <BaseSkeleton width="40px" height="24px" />
       </div>
-      <div class="stat-card" style="padding: 16px;">
-        <div class="stat-label" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Reserved</div>
-        <div class="stat-value" style="color:#2563EB">{{ reservedCount }}</div>
-      </div>
-      <div class="stat-card" style="padding: 16px;">
-        <div class="stat-label" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Terisi</div>
-        <div class="stat-value" style="color:#DC2626">{{ occupiedCount }}</div>
-      </div>
-      <div class="stat-card" style="padding: 16px;">
-        <div class="stat-label" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Cleaning</div>
-        <div class="stat-value" style="color:#D97706">{{ cleaningCount }}</div>
-      </div>
-      <div class="stat-card" style="padding: 16px;">
-        <div class="stat-label" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Booking</div>
-        <div class="stat-value">{{ todayBookings.length }}</div>
-      </div>
-      <div class="stat-card" style="padding: 16px;">
-        <div class="stat-label" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Waitlist</div>
-        <div class="stat-value">{{ waitingListCount }}</div>
-      </div>
+      <template v-else>
+        <div class="stat-card" style="padding: 16px;">
+          <div class="stat-label" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Tersedia</div>
+          <div class="stat-value" style="color:var(--status-available)">{{ availableCount }}<span style="font-size:14px;color:var(--text-muted)">/{{ totalTables }}</span></div>
+        </div>
+        <div class="stat-card" style="padding: 16px;">
+          <div class="stat-label" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Reserved</div>
+          <div class="stat-value" style="color:#2563EB">{{ reservedCount }}</div>
+        </div>
+        <div class="stat-card" style="padding: 16px;">
+          <div class="stat-label" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Terisi</div>
+          <div class="stat-value" style="color:#DC2626">{{ occupiedCount }}</div>
+        </div>
+        <div class="stat-card" style="padding: 16px;">
+          <div class="stat-label" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Cleaning</div>
+          <div class="stat-value" style="color:#D97706">{{ cleaningCount }}</div>
+        </div>
+        <div class="stat-card" style="padding: 16px;">
+          <div class="stat-label" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Booking</div>
+          <div class="stat-value">{{ todayBookings.length }}</div>
+        </div>
+        <div class="stat-card" style="padding: 16px;">
+          <div class="stat-label" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Waitlist</div>
+          <div class="stat-value">{{ waitingListCount }}</div>
+        </div>
+      </template>
     </div>
     
     <!-- OPERATIONAL ALERTS -->

@@ -1,6 +1,7 @@
 <script setup>
 import { useMainStore } from '@/stores/mainStore'
 import { computed, ref } from 'vue'
+import { RiHistoryLine } from 'vue-remix-icons'
 
 const store = useMainStore()
 const filterAction = ref('')
@@ -47,7 +48,18 @@ function getChanges(l) {
 <template>
   <div>
     <div class="page-header">
-      <div><div class="page-title">Log Aktivitas</div><div class="page-subtitle">Log aktivitas sistem — {{ logs.length }} entri</div></div>
+      <div class="page-header-left">
+        <div class="page-header-icon">
+          <RiHistoryLine />
+        </div>
+        <div>
+          <div class="page-title-wrap">
+            <span class="page-title">Log Aktivitas</span>
+            <span class="page-count-badge">{{ logs.length }}</span>
+          </div>
+          <div class="page-subtitle">Log aktivitas sistem</div>
+        </div>
+      </div>
       <div style="display:flex;gap:8px">
         <select class="form-select" v-model="filterAction" style="width:160px;padding:6px 10px;font-size:12px">
           <option value="">Semua Aksi</option>

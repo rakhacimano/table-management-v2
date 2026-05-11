@@ -4,7 +4,7 @@ import { useMainStore } from '@/stores/mainStore'
 import BaseModal from '@/components/ui/BaseModal.vue'
 import FloorPlan from './FloorPlan.vue'
 import { toast } from 'vue-sonner'
-import { RiAddLine, RiPencilLine, RiDeleteBinLine } from 'vue-remix-icons'
+import { RiAddLine, RiPencilLine, RiDeleteBinLine, RiTableAltLine } from 'vue-remix-icons'
 
 const store = useMainStore()
 const tables = computed(() => store.tables)
@@ -109,7 +109,18 @@ async function quickStatusChange(id, newStatus) {
 <template>
   <div>
     <div class="page-header" style="margin-bottom: 12px;">
-      <div><div class="page-title">Manajemen Meja</div><div class="page-subtitle">Kelola layout dan daftar meja makan</div></div>
+      <div class="page-header-left">
+        <div class="page-header-icon">
+          <RiTableAltLine />
+        </div>
+        <div>
+          <div class="page-title-wrap">
+            <span class="page-title">Manajemen Meja</span>
+            <span class="page-count-badge">{{ tables.length }}</span>
+          </div>
+          <div class="page-subtitle">Kelola layout dan daftar meja makan</div>
+        </div>
+      </div>
       <div style="display:flex;gap:8px">
         <div class="segmented-control">
           <div class="seg-item" :class="{ active: viewMode === 'list' }" @click="viewMode = 'list'">Daftar</div>

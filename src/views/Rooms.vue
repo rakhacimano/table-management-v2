@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import { useMainStore } from '@/stores/mainStore'
 import BaseModal from '@/components/ui/BaseModal.vue'
 import { toast } from 'vue-sonner'
-import { RiAddLine, RiPencilLine, RiDeleteBinLine } from 'vue-remix-icons'
+import { RiAddLine, RiPencilLine, RiDeleteBinLine, RiLayoutMasonryLine } from 'vue-remix-icons'
 
 const store = useMainStore()
 const rooms = computed(() => store.rooms)
@@ -67,7 +67,18 @@ async function deleteRoom(id) {
 <template>
   <div>
     <div class="page-header">
-      <div><div class="page-title">Ruangan & Lantai</div><div class="page-subtitle">Kelola area restoran Anda</div></div>
+      <div class="page-header-left">
+        <div class="page-header-icon">
+          <RiLayoutMasonryLine />
+        </div>
+        <div>
+          <div class="page-title-wrap">
+            <span class="page-title">Ruangan &amp; Lantai</span>
+            <span class="page-count-badge">{{ rooms.length }}</span>
+          </div>
+          <div class="page-subtitle">Kelola area restoran Anda</div>
+        </div>
+      </div>
       <button class="btn btn-primary" @click="openModal(null)">
         <RiAddLine size="16" style="margin-right: 4px;" /> Tambah Ruangan
       </button>

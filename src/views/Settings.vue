@@ -1,7 +1,7 @@
 <script setup>
 import { useMainStore } from '@/stores/mainStore'
 import { toast } from 'vue-sonner'
-import { RiDownloadLine } from 'vue-remix-icons'
+import { RiDownloadLine, RiSettings3Line } from 'vue-remix-icons'
 
 const store = useMainStore()
 
@@ -21,7 +21,17 @@ const resetData = async () => {
 <template>
   <div>
     <div class="page-header">
-      <div><div class="page-title">Pengaturan</div><div class="page-subtitle">Konfigurasi aplikasi</div></div>
+      <div class="page-header-left">
+        <div class="page-header-icon">
+          <RiSettings3Line />
+        </div>
+        <div>
+          <div class="page-title-wrap">
+            <span class="page-title">Pengaturan</span>
+          </div>
+          <div class="page-subtitle">Konfigurasi aplikasi</div>
+        </div>
+      </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
       <div class="card">

@@ -1,6 +1,7 @@
 <script setup>
 import { useMainStore } from '@/stores/mainStore'
 import { computed } from 'vue'
+import { RiCalendarEventLine } from 'vue-remix-icons'
 
 const store = useMainStore()
 const bookings = computed(() => store.bookings)
@@ -14,7 +15,18 @@ function formatTime(iso) {
 <template>
   <div>
     <div class="page-header">
-      <div><div class="page-title">Reservasi</div><div class="page-subtitle">Kelola semua pemesanan meja</div></div>
+      <div class="page-header-left">
+        <div class="page-header-icon">
+          <RiCalendarEventLine />
+        </div>
+        <div>
+          <div class="page-title-wrap">
+            <span class="page-title">Reservasi</span>
+            <span class="page-count-badge">{{ bookings.length }}</span>
+          </div>
+          <div class="page-subtitle">Kelola semua pemesanan meja</div>
+        </div>
+      </div>
     </div>
     
     <div class="card">

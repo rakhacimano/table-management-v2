@@ -2,14 +2,16 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useMainStore } from '@/stores/mainStore'
 import { toast } from 'vue-sonner'
-import { RiCloseLine } from 'vue-remix-icons'
+import { RiCloseLine, RiMapPinLine } from 'vue-remix-icons'
 import BaseModal from '@/components/ui/BaseModal.vue'
+import BaseSkeleton from '@/components/ui/BaseSkeleton.vue'
 
 const props = defineProps({
   isEmbed: { type: Boolean, default: false }
 })
 
 const store = useMainStore()
+const isLoading = computed(() => store.isLoading)
 const isCustomer = computed(() => store.currentPersona.id === 'customer')
 const isAdmin = computed(() => ['owner', 'admin', 'manager'].includes(store.currentPersona.id))
 const isCleaner = computed(() => store.currentPersona.id === 'cleaner')
@@ -160,16 +162,28 @@ async function submitBooking() {
 <template>
   <div @click="showPersonaDropdown = false">
     <div class="page-header" v-if="!isEmbed">
-      <div>
-        <div class="page-title">Denah Lantai</div>
-        <div class="page-subtitle">
-          <span v-if="!isCustomer">Atur posisi meja dan pantau status restoran</span>
-          <span v-else>Pilih ruangan dan meja yang tersedia untuk dipesan</span>
+      <div class="page-header-left">
+        <div class="page-header-icon">
+          <RiMapPinLine />
+        </div>
+        <div v-if="isLoading">
+          <BaseSkeleton width="150px" height="24px" style="margin-bottom:8px" />
+          <BaseSkeleton width="250px" height="16px" />
+        </div>
+        <div v-else>
+          <div class="page-title-wrap">
+            <span class="page-title">Denah Lantai</span>
+          </div>
+          <div class="page-subtitle">
+            <span v-if="!isCustomer">Atur posisi meja dan pantau status restoran</span>
+            <span v-else>Pilih ruangan dan meja yang tersedia untuk dipesan</span>
+          </div>
         </div>
       </div>
       <div style="display:flex;gap:12px;align-items:center;">
         <label style="font-size:12px;font-weight:600;color:var(--text-muted)">Pilih Ruangan:</label>
-        <select class="form-select" v-model="selectedRoomId" style="width:200px">
+        <BaseSkeleton v-if="isLoading" width="120px" height="32px" />
+        <select v-else class="form-select" v-model="selectedRoomId" style="width:200px">
           <option v-for="r in rooms" :key="r.id" :value="r.id">{{ r.name }}</option>
         </select>
 
@@ -189,24 +203,38 @@ async function submitBooking() {
     
     <div class="floor-plan-container" style="overflow: hidden;">
       <div class="floor-plan-toolbar">
-        <select class="form-select" v-model="selectedRoomId" style="width:200px;font-size:12px">
+        <BaseSkeleton v-if="isLoading" width="120px" height="32px" />
+        <select v-else class="form-select" v-model="selectedRoomId" style="width:200px;font-size:12px">
           <option v-for="r in rooms" :key="r.id" :value="r.id">{{ r.name }}</option>
         </select>
       </div>
       
       <div class="floor-plan-canvas">
         <!-- Floating Legend -->
-        <div class="floating-legend">
+        <div class="floating-legend" v-if="!isLoading">
           <div class="legend-item"><div class="legend-dot" style="background:var(--status-available)"></div>Tersedia</div>
           <div class="legend-item"><div class="legend-dot" style="background:var(--status-occupied)"></div>Terisi</div>
           <div class="legend-item"><div class="legend-dot" style="background:var(--status-reserved)"></div>Dipesan</div>
           <div class="legend-item"><div class="legend-dot" style="background:var(--status-cleaning)"></div>Dibersihkan</div>
         </div>
 
-        <div v-if="currentRoomTables.length === 0" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--text-muted);">
+        <div v-if="isLoading" style="position:relative; width:100%; height:500px">
+           <BaseSkeleton v-for="i in 6" :key="i" 
+             variant="rect" 
+             :width="80 + (i%2)*20 + 'px'" 
+             :height="80 + (i%2)*20 + 'px'" 
+             :style="{ 
+               position: 'absolute', 
+               left: (100 + i*120 % 500) + 'px', 
+               top: (100 + i*80 % 300) + 'px',
+               borderRadius: i % 3 === 0 ? '50%' : 'var(--radius-md)'
+             }" 
+           />
+        </div>
+        <div v-else-if="currentRoomTables.length === 0" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--text-muted);">
           Tidak ada meja di ruangan ini.
         </div>
-        <div v-for="t in currentRoomTables" :key="t.id" class="floor-table"
+        <div v-else v-for="t in currentRoomTables" :key="t.id" class="floor-table"
              :class="{ 
                'selected': selectedDetailTable?.id === t.id, 
                'draggable': isAdmin, 
